@@ -7,6 +7,9 @@ local-docs/
 # Sample data
 sample-data/
 
+# Manifest files
+image_manifest.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
