@@ -9,10 +9,9 @@ import argparse # For command-line arguments for debugging
 
 # --- Configuration ---
 # The root directory where your YYYY/MM/DD structured photos are.
-# We'll use the 'sample-data' folder in your workspace for this example.
-PHOTO_ROOT_DIR = Path("sample-data")
+PHOTO_ROOT_DIR = Path("/mnt/Web") # Changed to /mnt/Web
 # The name of the output JSON file.
-OUTPUT_JSON_FILE = Path("image_manifest.json")
+OUTPUT_JSON_FILE = Path("/mnt/Web/image_manifest.json") # Changed output path
 # --- End Configuration ---
 
 def clean_exif_string(value):
@@ -293,9 +292,6 @@ def main(args): # Modified to accept args
                 # However, to get dimensions here, we open/close it separately if get_exif_data doesn't return them.
                 # For simplicity, let's assume get_exif_data is the primary source of image interaction.
                 # To get width/height, we might need to open it here if get_exif_data doesn't pass it back.
-                # The current get_exif_data opens and closes the image.
-                # Let's re-open for dimensions for clarity, or modify get_exif_data to return dimensions.
-                
                 temp_img_for_dims = Image.open(image_path)
                 width, height = temp_img_for_dims.size
                 temp_img_for_dims.close()

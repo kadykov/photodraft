@@ -57,7 +57,7 @@
         "type": ["string", "null"]
       },
       "tags": {
-        "description": "A list of keywords/tags associated with the image, from EXIF XPKeywords. Null if no tags.",
+        "description": "A list of keywords/tags associated with the image, from XMP dc:subject or EXIF XPKeywords. Null if no tags.",
         "type": ["array", "null"],
         "items": {
           "type": "string"
@@ -68,8 +68,12 @@
         "type": ["string", "null"]
       },
       "lensModel": {
-        "description": "Lens model used, from EXIF LensModel. Null if not available.",
+        "description": "Lens model used, from EXIF LensModel, cleaned of null characters. Null if not available.",
         "type": ["string", "null"]
+      },
+      "flash": {
+        "description": "Indicates if the flash fired. True if fired, false if not, null if unknown.",
+        "type": ["boolean", "null"]
       },
       "focalLength": {
         "description": "Focal length of the lens in millimeters (e.g., 50.0 for 50mm). Null if not available.",
