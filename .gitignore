@@ -4,6 +4,9 @@ kadykov-*
 # Local documentation
 local-docs/
 
+# Sample data
+sample-data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
