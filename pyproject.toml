@@ -8,3 +8,9 @@ dependencies = [
     "defusedxml>=0.7.1",
     "pillow>=11.2.1",
 ]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "ruff>=0.11.11",
+]
