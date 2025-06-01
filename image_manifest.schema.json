@@ -93,6 +93,14 @@
       "exposureTime": {
         "description": "Exposure time in seconds (e.g., 0.004 for 1/250s). Null if not available.",
         "type": ["number", "null"]
+      },
+      "creator": {
+        "description": "Name of the photographer or creator, from EXIF Artist or XMP dc:creator. Null if not available.",
+        "type": ["string", "null"]
+      },
+      "copyright": {
+        "description": "Copyright information, from EXIF Copyright or XMP dc:rights. Null if not available.",
+        "type": ["string", "null"]
       }
     },
     "required": [

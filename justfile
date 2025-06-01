@@ -44,3 +44,19 @@ qa:
     just format-imports
     just lint-fix
     just typecheck
+
+# Copy the JSON schema to the output directory
+publish-schema:
+    @echo "Copying image_manifest.schema.json to /mnt/Web/..."
+    cp image_manifest.schema.json /mnt/Web/image_manifest.schema.json
+
+# Generate manifest and publish schema
+publish:
+    just generate
+    just publish-schema
+
+# Debug metadata for a specific image
+# Usage: just debug-image path/to/your/image.jpg
+debug-image path="":
+    @echo "Debugging metadata for {{path}}..."
+    uv run -- python generate_manifest.py --debug-image {{path}}
