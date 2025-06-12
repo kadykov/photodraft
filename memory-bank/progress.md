@@ -1,5 +1,15 @@
 # Progress: Photodraft
 
+## Version 0.1.3 (Feature Update: Slug Field) - 2025-06-12
+
+*   **Overall Status:** Added `slug` field for URL-friendly identifiers.
+*   **Implemented Features & Fixes:**
+    *   **Slug Field (`image_manifest.schema.json`, `generate_manifest.py`):**
+        *   Added `slug` (string, required) to `image_manifest.schema.json`.
+        *   Updated `generate_manifest.py` to create a `slug` from the `relativePath` (e.g., `2025/03/04/DSC_1234.jpg` becomes `2025-03-04-DSC_1234`).
+
+---
+
 ## Version 0.1.2 (Feature Update & Bugfix) - 2025-06-02
 
 *   **Overall Status:** Features for schema publishing, creator/copyright metadata, and image debugging added. Title/description extraction corrected.

@@ -1,8 +1,8 @@
 # Project Brief: Photodraft
 
-**Version:** 0.1.2
-**Date:** 2025-06-02
-**Status:** Feature update: Creator/Copyright metadata, schema publishing, debug command. Bugfix: Title/Description extraction.
+**Version:** 0.1.3
+**Date:** 2025-06-12
+**Status:** Feature update: Added `slug` field for URL-friendly identifiers.
 
 ## 1. Project Overview
 
@@ -10,11 +10,12 @@ Photodraft is a Python script designed to complement a personal website (built w
 
 This manifest file is then used by the AstroJS website during its build process. The website downloads the manifest, uses it as a collection of images, creates optimized versions and thumbnails (served via CDN), and provides links to the original full-resolution photos, which are self-hosted on a home server.
 
-## 2. Core Requirements & Features (as of v0.1.2)
+## 2. Core Requirements & Features (as of v0.1.3)
 
 *   **Scan Photo Directory:** The script must recursively scan a specified root directory (`PHOTO_ROOT_DIR`, default `/mnt/Web`) for image files (JPG, JPEG, PNG, WEBP).
 *   **Metadata Extraction:** Extract relevant metadata from each image, including:
     *   File path information (relative path, filename, year/month/day from folder structure).
+    *   **Slug:** A URL-friendly identifier derived from the `relativePath` (e.g., `2025-03-04-DSC_1234`).
     *   Image dimensions (width, height).
     *   Date taken (from EXIF).
     *   **Title:** Prioritizes XMP `dc:title`, falls back to EXIF `ImageDescription`, then EXIF `ObjectName`.

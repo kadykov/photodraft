@@ -321,9 +321,13 @@ def main(args):
                 if flash_info_raw is not None:
                     flash_fired_boolean = bool(flash_info_raw & 0x1)
 
+                # Generate slug from relative_path
+                slug = str(relative_path.with_suffix('')).replace(os.sep, '-')
+
                 image_data = {
                     "relativePath": str(relative_path.as_posix()),
                     "filename": filename, "year": year, "month": month, "day": day,
+                    "slug": slug,
                     "width": width, "height": height, "dateTaken": date_taken_iso,
                     "title": title, "description": description,
                     "tags": tags if tags else None,

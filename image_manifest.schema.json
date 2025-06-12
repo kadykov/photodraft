@@ -101,13 +101,18 @@
       "copyright": {
         "description": "Copyright information, from EXIF Copyright or XMP dc:rights. Null if not available.",
         "type": ["string", "null"]
+      },
+      "slug": {
+        "description": "A URL-friendly slug derived from the relativePath, e.g., '2025-03-04-DSC_1234'.",
+        "type": "string"
       }
     },
     "required": [
       "relativePath",
       "filename",
       "width",
-      "height"
+      "height",
+      "slug"
     ]
   }
 }

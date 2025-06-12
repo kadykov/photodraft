@@ -1,7 +1,7 @@
 # System Patterns: Photodraft
 
-**Version:** 0.1.2 (Reflects creator/copyright, title/desc fixes, schema publishing, debug command)
-**Date:** 2025-06-02
+**Version:** 0.1.3 (Reflects slug field addition)
+**Date:** 2025-06-12
 
 ## 1. System Architecture Overview
 
@@ -34,6 +34,7 @@ graph LR
             *   Extracts dimensions.
             *   Extracts EXIF data using `img._getexif()`.
             *   Attempts to extract XMP data using `img.getxmp()`.
+            *   **Generates `slug`:** Creates a URL-friendly slug from the `relativePath` (e.g., `2025/03/04/DSC_1234.jpg` becomes `2025-03-04-DSC_1234`).
             *   **Metadata Prioritization:**
                 *   **Title:** XMP `dc:title` -> EXIF `ImageDescription` -> EXIF `ObjectName`.
                 *   **Description:** XMP `dc:description` -> EXIF `UserComment` -> EXIF `ImageDescription` (if not used for title).
@@ -42,7 +43,7 @@ graph LR
                 *   **Copyright:** XMP `dc:rights` -> EXIF `Copyright`.
             *   Uses helper functions (`find_in_xmp`, `get_xmp_text_or_list_first`, `get_xmp_lang_alt`) for robust XMP parsing (Bag, Seq, Alt structures).
             *   Cleans and formats extracted data (e.g., date parsing, string cleaning, `IFDRational` to float).
-            *   Constructs a Python dictionary representing the image's metadata.
+            *   Constructs a Python dictionary representing the image's metadata, including the `slug`.
         *   Collects all image data into a list.
         *   Sorts the list by `dateTaken` (descending).
     *   **Output:** Writes the list of image data as a JSON array to `OUTPUT_JSON_FILE` (e.g., `/mnt/Web/image_manifest.json`).
@@ -53,7 +54,7 @@ graph LR
     *   This file serves as the data source for the external AstroJS website.
 4.  **`image_manifest.schema.json` (Schema File):**
     *   Defines the expected structure and types for `image_manifest.json`.
-    *   Includes fields like `title`, `description`, `creator`, `copyright` in addition to previously defined fields.
+    *   Includes fields like `title`, `description`, `creator`, `copyright`, and the new `slug` field.
     *   Can be copied to the output directory alongside the manifest.
 5.  **External AstroJS Website (Consumer):**
     *   Fetches `image_manifest.json` (and potentially `image_manifest.schema.json` for validation) during its build.
@@ -63,6 +64,7 @@ graph LR
 ## 2. Key Technical Decisions & Patterns
 
 *   **Language & Core Library:** Python with Pillow (PIL Fork).
+*   **Slug Generation:** Derived from `relativePath` by removing the file extension and replacing path separators with hyphens.
 *   **Metadata Extraction Strategy:**
     *   Direct EXIF access (`_getexif()`).
     *   Direct XMP access (`getxmp()`).

@@ -1,7 +1,7 @@
 # Tech Context: Photodraft
 
-**Version:** 0.1.2 (Reflects creator/copyright, title/desc fixes, schema publishing, debug command)
-**Date:** 2025-06-02
+**Version:** 0.1.3 (Reflects slug field addition)
+**Date:** 2025-06-12
 
 ## 1. Core Technologies
 
@@ -14,9 +14,9 @@
 *   **XML Parsing (Indirectly for XMP):** `defusedxml` version >=0.7.1. Pillow uses this internally for safer XMP parsing if XMP data is XML-based. The script itself does not directly parse XML; it consumes the dictionary from Pillow.
 *   **Standard Library Modules:**
     *   `json`: For serializing data to `image_manifest.json`.
-    *   `os`: For `os.walk` to traverse directories.
+    *   `os`: For `os.walk` to traverse directories and `os.sep` for path manipulation (used in slug generation).
     *   `datetime` (from `datetime`): For parsing and formatting date strings.
-    *   `pathlib.Path`: For object-oriented filesystem path manipulation.
+    *   `pathlib.Path`: For object-oriented filesystem path manipulation, including `with_suffix('')` for slug generation.
     *   `argparse`: For handling command-line arguments (e.g., `--debug-image`).
 
 ## 2. Development & Build Environment
@@ -52,8 +52,8 @@
 
 ## 4. Key Files & Their Roles
 
-*   **`generate_manifest.py`:** Core Python script. Contains XMP helper functions (`find_in_xmp`, `get_xmp_text_or_list_first`, `get_xmp_lang_alt`) for parsing different XMP data structures.
-*   **`image_manifest.schema.json`:** Defines the output JSON structure, including new fields for `creator` and `copyright`.
+*   **`generate_manifest.py`:** Core Python script. Contains XMP helper functions (`find_in_xmp`, `get_xmp_text_or_list_first`, `get_xmp_lang_alt`) for parsing different XMP data structures. Generates the `slug` field.
+*   **`image_manifest.schema.json`:** Defines the output JSON structure, including new fields for `creator`, `copyright`, and `slug`.
 *   **`README.md`:** Setup, configuration, usage.
 *   **`pyproject.toml`:** Project dependencies for `uv`.
 *   **`justfile`:** Task automation, including new `publish-schema`, `publish`, and `debug-image` commands.
@@ -74,4 +74,4 @@
 *   **`exif_data` (raw EXIF from Pillow):** Dictionary-like.
 *   **`xmp_data_dict` (parsed XMP):** Dictionary storing extracted XMP values like `dc:title`, `dc:description`, `dc:subject`, `dc:creator`, `dc:rights`.
 *   **`final_data` (merged and processed):** Dictionary holding `ProcessedTitle`, `ProcessedDescription`, `ProcessedTags`, `ProcessedCreator`, `ProcessedCopyright`, and other EXIF fields before being used in `main`.
-*   **Output Manifest:** JSON array of image data objects.
+*   **Output Manifest:** JSON array of image data objects, each including a `slug`.
