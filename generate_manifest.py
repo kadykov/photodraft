@@ -78,8 +78,10 @@ def get_exif_data(image_path):
                     current = data
                     for key_part in path_keys:
                         if isinstance(current, list):
-                            if current: current = current[0]
-                            else: return None
+                            if current:
+                                current = current[0]
+                            else:
+                                return None
                         if not isinstance(current, dict) or key_part not in current:
                             return None
                         current = current[key_part]
@@ -109,14 +111,16 @@ def get_exif_data(image_path):
                         alt_node = value.get("Alt")
                         if isinstance(alt_node, dict) and "li" in alt_node:
                             li_items = alt_node["li"]
-                            if not isinstance(li_items, list): li_items = [li_items]
+                            if not isinstance(li_items, list):
+                                li_items = [li_items]
                             for li_item in li_items:
                                 if isinstance(li_item, dict) and li_item.get("xml:lang") == "x-default":
                                     return str(li_item.get("#text", li_item.get("text"))).strip() # Handle cases where text is under #text or text
                             for li_item in li_items: # Fallback if no x-default
                                 if isinstance(li_item, dict) and ("#text" in li_item or "text" in li_item):
                                     return str(li_item.get("#text", li_item.get("text"))).strip()
-                                elif isinstance(li_item, str): return str(li_item).strip()
+                                elif isinstance(li_item, str):
+                                    return str(li_item).strip()
                         elif 'x-default' in value and isinstance(value['x-default'], str):
                             return value['x-default'].strip()
                     elif isinstance(value, str):
@@ -143,27 +147,31 @@ def get_exif_data(image_path):
                                     xmp_data_dict["dc:subject"] = [str(tag).strip() for tag in subject_val if tag]
                                 elif isinstance(subject_val, str):
                                     xmp_data_dict["dc:subject"] = [subject_val.strip()]
-                            
+
                             # Title
                             if "dc:title" not in xmp_data_dict:
                                 xmp_title = get_xmp_lang_alt(desc_item, "title")
-                                if xmp_title: xmp_data_dict["dc:title"] = xmp_title
-                            
+                                if xmp_title:
+                                    xmp_data_dict["dc:title"] = xmp_title
+
                             # Description
                             if "dc:description" not in xmp_data_dict:
                                 xmp_desc_val = get_xmp_lang_alt(desc_item, "description")
-                                if xmp_desc_val: xmp_data_dict["dc:description"] = xmp_desc_val
-                            
+                                if xmp_desc_val:
+                                    xmp_data_dict["dc:description"] = xmp_desc_val
+
                             # Creator
                             if "dc:creator" not in xmp_data_dict:
                                 xmp_creator = get_xmp_text_or_list_first(desc_item, "creator")
-                                if xmp_creator: xmp_data_dict["dc:creator"] = xmp_creator
-                            
+                                if xmp_creator:
+                                    xmp_data_dict["dc:creator"] = xmp_creator
+
                             # Rights (Copyright)
                             if "dc:rights" not in xmp_data_dict:
                                 xmp_rights = get_xmp_lang_alt(desc_item, "rights")
-                                if xmp_rights: xmp_data_dict["dc:rights"] = xmp_rights
-                            
+                                if xmp_rights:
+                                    xmp_data_dict["dc:rights"] = xmp_rights
+
                             # If we found all desired XMP fields in one description block, we can often break
                             # However, sometimes fields are split, so we iterate all for safety unless performance dictates otherwise.
         except AttributeError:
@@ -211,16 +219,18 @@ def get_exif_data(image_path):
             final_data["ProcessedCopyright"] = clean_exif_string(xmp_data_dict["dc:rights"])
         elif "Copyright" in exif_data:
             final_data["ProcessedCopyright"] = clean_exif_string(exif_data["Copyright"])
-        
+
         return final_data
     except Exception:
         return {}
 
 def interpret_flash_value(flash_val):
     """Interprets the EXIF Flash tag value."""
-    if flash_val is None: return None
+    if flash_val is None:
+        return None
     flash_fired = bool(flash_val & 0x1)
-    if not flash_fired: return "Flash did not fire"
+    if not flash_fired:
+        return "Flash did not fire"
     # Simplified interpretation for now
     return "Flash fired"
 
@@ -264,7 +274,8 @@ def print_all_metadata_for_image(image_path_str):
 
 def parse_exif_date(date_str):
     """Parses EXIF date string (YYYY:MM:DD HH:MM:SS) to ISO 8601 format."""
-    if not date_str or not isinstance(date_str, str): return None
+    if not date_str or not isinstance(date_str, str):
+        return None
     try:
         dt_obj = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
         return dt_obj.isoformat()
@@ -311,11 +322,12 @@ def main(args):
                 title = exif_data.get("ProcessedTitle", None)
                 description = exif_data.get("ProcessedDescription", None)
                 tags = exif_data.get("ProcessedTags", [])
-                if not isinstance(tags, list): tags = []
+                if not isinstance(tags, list):
+                    tags = []
 
                 lens_model_processed = clean_exif_string(exif_data.get("LensModel", None))
                 camera_model_processed = clean_exif_string(exif_data.get("Model", None))
-                
+
                 flash_info_raw = exif_data.get("Flash")
                 flash_fired_boolean = None
                 if flash_info_raw is not None:
@@ -352,7 +364,8 @@ def main(args):
         json.dump(all_images_data, f, indent=2)
 
     print(f"\nSuccessfully processed {processed_count} images.")
-    if skipped_count > 0: print(f"Skipped {skipped_count} files due to errors.")
+    if skipped_count > 0:
+        print(f"Skipped {skipped_count} files due to errors.")
     print(f"Manifest file created: {OUTPUT_JSON_FILE.resolve()}")
 
 if __name__ == "__main__":
