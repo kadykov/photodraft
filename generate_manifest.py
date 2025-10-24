@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+import pillow_avif  # Register AVIF support in PIL
 from PIL import Image
 from PIL.ExifTags import TAGS
 from PIL.TiffImagePlugin import IFDRational
@@ -294,7 +295,7 @@ def main(args):
 
     for root, _, files in os.walk(PHOTO_ROOT_DIR):
         for filename in files:
-            if not filename.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+            if not filename.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".avif")):
                 continue
 
             image_path = Path(root) / filename
