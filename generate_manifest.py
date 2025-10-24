@@ -3,11 +3,13 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
+import io
 
 import pillow_avif  # Register AVIF support in PIL
 from PIL import Image
 from PIL.ExifTags import TAGS
 from PIL.TiffImagePlugin import IFDRational
+import exifread
 
 # --- Configuration ---
 # The root directory where your YYYY/MM/DD structured photos are.
@@ -41,34 +43,113 @@ def get_exif_data(image_path):
     try:
         img = Image.open(image_path)
 
-        # Standard EXIF
-        exif_data_raw = img._getexif()  # pylint: disable=protected-access
-        if exif_data_raw:
-            for tag_id, value in exif_data_raw.items():
-                tag_name = TAGS.get(tag_id, tag_id)
-
-                if isinstance(value, bytes):
-                    try:
-                        # Special handling for XPKeywords (often UCS-2 encoded byte string)
-                        if (
-                            tag_name == "XPKeywords"
-                        ):
-                            decoded_value = value.decode("utf-16-le", errors="ignore")
-                            cleaned_value = decoded_value.rstrip("\x00")
-                            exif_data[tag_name] = [
-                                tag.strip()
-                                for tag in cleaned_value.split(";")
-                                if tag.strip()
-                            ]
-                            continue
+        # Handle EXIF extraction based on image format
+        if img.format == 'AVIF':
+            # For AVIF files, use multiple methods to get comprehensive EXIF data
+            
+            # Method 1: Standard getexif() for basic data
+            try:
+                basic_exif = img.getexif()
+                if basic_exif:
+                    for tag_id, value in basic_exif.items():
+                        tag_name = TAGS.get(tag_id, tag_id)
+                        exif_data[tag_name] = value
+            except Exception:
+                pass
+            
+            # Method 2: Get detailed EXIF data from IFD
+            try:
+                exif_ifd = img.getexif().get_ifd(0x8769)  # EXIF IFD
+                if exif_ifd:
+                    for tag_id, value in exif_ifd.items():
+                        tag_name = TAGS.get(tag_id, tag_id)
+                        exif_data[tag_name] = value
+            except Exception:
+                pass
+            
+            # Method 3: Parse raw EXIF bytes with exifread for maximum compatibility
+            try:
+                if 'exif' in img.info:
+                    exif_bytes = img.info['exif']
+                    exif_stream = io.BytesIO(exif_bytes)
+                    tags = exifread.process_file(exif_stream, details=False)
+                    
+                    for tag_name, tag_value in tags.items():
+                        # Convert exifread tag names to standard EXIF tag names
+                        if tag_name.startswith('EXIF '):
+                            clean_tag = tag_name.replace('EXIF ', '')
+                        elif tag_name.startswith('Image '):
+                            clean_tag = tag_name.replace('Image ', '')
                         else:
-                            value = value.decode("utf-8", errors="ignore")
-                    except UnicodeDecodeError:
-                        pass
+                            clean_tag = tag_name
+                        
+                        # Convert common tag names to PIL standard names
+                        tag_mapping = {
+                            'ExposureTime': 'ExposureTime',
+                            'FNumber': 'FNumber', 
+                            'ISOSpeedRatings': 'ISOSpeedRatings',
+                            'FocalLength': 'FocalLength',
+                            'Flash': 'Flash',
+                            'DateTimeOriginal': 'DateTimeOriginal',
+                            'DateTime': 'DateTime',
+                            'Make': 'Make',
+                            'Model': 'Model',
+                            'Artist': 'Artist',
+                            'Copyright': 'Copyright',
+                            'LensModel': 'LensModel'
+                        }
+                        
+                        mapped_tag = tag_mapping.get(clean_tag, clean_tag)
+                        
+                        # Convert exifread values to appropriate types
+                        str_value = str(tag_value)
+                        if '/' in str_value and clean_tag in ['ExposureTime', 'FNumber', 'FocalLength']:
+                            # Handle fractional values
+                            try:
+                                parts = str_value.split('/')
+                                if len(parts) == 2:
+                                    exif_data[mapped_tag] = float(parts[0]) / float(parts[1])
+                                else:
+                                    exif_data[mapped_tag] = str_value
+                            except ValueError:
+                                exif_data[mapped_tag] = str_value
+                        elif clean_tag in ['ISOSpeedRatings'] and str_value.isdigit():
+                            # Convert ISO to integer
+                            exif_data[mapped_tag] = int(str_value)
+                        else:
+                            exif_data[mapped_tag] = str_value
+            except Exception:
+                pass
+                
+        else:
+            # Standard EXIF extraction for JPEG and other formats
+            exif_data_raw = img._getexif()  # pylint: disable=protected-access
+            if exif_data_raw:
+                for tag_id, value in exif_data_raw.items():
+                    tag_name = TAGS.get(tag_id, tag_id)
 
-                exif_data[tag_name] = (
-                    clean_exif_string(value) if isinstance(value, str) else value
-                )
+                    if isinstance(value, bytes):
+                        try:
+                            # Special handling for XPKeywords (often UCS-2 encoded byte string)
+                            if (
+                                tag_name == "XPKeywords"
+                            ):
+                                decoded_value = value.decode("utf-16-le", errors="ignore")
+                                cleaned_value = decoded_value.rstrip("\x00")
+                                exif_data[tag_name] = [
+                                    tag.strip()
+                                    for tag in cleaned_value.split(";")
+                                    if tag.strip()
+                                ]
+                                continue
+                            else:
+                                value = value.decode("utf-8", errors="ignore")
+                        except UnicodeDecodeError:
+                            pass
+
+                    exif_data[tag_name] = (
+                        clean_exif_string(value) if isinstance(value, str) else value
+                    )
 
         # Attempt to get XMP data
         try:
@@ -246,14 +327,57 @@ def print_all_metadata_for_image(image_path_str):
     print(f"--- Metadata for {image_path.name} ---")
     try:
         img = Image.open(image_path)
+        print(f"Image format: {img.format}")
+        print(f"Image size: {img.size}")
+        
         print("\n-- EXIF Data --")
-        exif_data_raw = img._getexif()
-        if exif_data_raw:
-            for tag_id, value in exif_data_raw.items():
-                tag_name = TAGS.get(tag_id, tag_id)
-                print(f"  {tag_name} (ID: {tag_id}): {value}")
+        if img.format == 'AVIF':
+            # For AVIF files, use enhanced extraction methods
+            print("Using AVIF-compatible extraction methods:")
+            
+            # Method 1: Basic getexif()
+            try:
+                basic_exif = img.getexif()
+                if basic_exif:
+                    print(f"Basic EXIF ({len(basic_exif)} entries):")
+                    for tag_id, value in basic_exif.items():
+                        tag_name = TAGS.get(tag_id, tag_id)
+                        print(f"  {tag_name} (ID: {tag_id}): {value}")
+            except Exception as e:
+                print(f"  Error with basic getexif(): {e}")
+            
+            # Method 2: EXIF IFD
+            try:
+                exif_ifd = img.getexif().get_ifd(0x8769)
+                if exif_ifd:
+                    print(f"\nEXIF IFD ({len(exif_ifd)} entries):")
+                    for tag_id, value in exif_ifd.items():
+                        tag_name = TAGS.get(tag_id, tag_id)
+                        print(f"  {tag_name} (ID: {tag_id}): {value}")
+            except Exception as e:
+                print(f"  Error with EXIF IFD: {e}")
+            
+            # Method 3: Raw EXIF bytes
+            try:
+                if 'exif' in img.info:
+                    exif_bytes = img.info['exif']
+                    exif_stream = io.BytesIO(exif_bytes)
+                    tags = exifread.process_file(exif_stream, details=False)
+                    if tags:
+                        print(f"\nRaw EXIF parsing ({len(tags)} entries):")
+                        for tag_name, tag_value in sorted(tags.items()):
+                            print(f"  {tag_name}: {tag_value}")
+            except Exception as e:
+                print(f"  Error with raw EXIF parsing: {e}")
         else:
-            print("  No EXIF data found.")
+            # Standard _getexif() for other formats
+            exif_data_raw = img._getexif()
+            if exif_data_raw:
+                for tag_id, value in exif_data_raw.items():
+                    tag_name = TAGS.get(tag_id, tag_id)
+                    print(f"  {tag_name} (ID: {tag_id}): {value}")
+            else:
+                print("  No EXIF data found.")
 
         print("\n-- XMP Data --")
         try:
@@ -332,7 +456,20 @@ def main(args):
                 flash_info_raw = exif_data.get("Flash")
                 flash_fired_boolean = None
                 if flash_info_raw is not None:
-                    flash_fired_boolean = bool(flash_info_raw & 0x1)
+                    # Handle both integer and string flash values
+                    if isinstance(flash_info_raw, (int, float)):
+                        flash_fired_boolean = bool(int(flash_info_raw) & 0x1)
+                    elif isinstance(flash_info_raw, str):
+                        if "fired" in flash_info_raw.lower():
+                            flash_fired_boolean = True
+                        elif "not fire" in flash_info_raw.lower():
+                            flash_fired_boolean = False
+                        else:
+                            # Try to parse as integer
+                            try:
+                                flash_fired_boolean = bool(int(flash_info_raw) & 0x1)
+                            except ValueError:
+                                flash_fired_boolean = None
 
                 # Generate slug from relative_path
                 slug = str(relative_path.with_suffix('')).replace(os.sep, '-')
