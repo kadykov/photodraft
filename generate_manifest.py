@@ -116,6 +116,9 @@ def get_exif_data(image_path):
                         elif clean_tag in ['ISOSpeedRatings'] and str_value.isdigit():
                             # Convert ISO to integer
                             exif_data[mapped_tag] = int(str_value)
+                        elif clean_tag in ['FNumber'] and str_value.replace('.', '').isdigit():
+                            # Convert f-number to float
+                            exif_data[mapped_tag] = float(str_value)
                         else:
                             exif_data[mapped_tag] = str_value
             except Exception:
@@ -407,6 +410,27 @@ def parse_exif_date(date_str):
     except ValueError:
         return None
 
+def ensure_numeric_type(value, target_type='float'):
+    """Ensures a value is converted to the correct numeric type for schema compliance."""
+    if value is None:
+        return None
+    
+    # If it's already the correct type, return as is
+    if target_type == 'float' and isinstance(value, (int, float)):
+        return float(value)
+    elif target_type == 'int' and isinstance(value, int):
+        return value
+    
+    # Try to convert from string or other types
+    try:
+        if target_type == 'float':
+            return float(value)
+        elif target_type == 'int':
+            # Handle cases where ISO might be a float like "100.0"
+            return int(float(value))
+    except (ValueError, TypeError):
+        return None
+
 def main(args):
     if args.debug_image:
         print_all_metadata_for_image(args.debug_image)
@@ -484,10 +508,10 @@ def main(args):
                     "cameraModel": camera_model_processed,
                     "lensModel": lens_model_processed,
                     "flash": flash_fired_boolean,
-                    "focalLength": format_ifd_rational_value(exif_data.get("FocalLength")),
-                    "apertureValue": format_ifd_rational_value(exif_data.get("FNumber")),
-                    "isoSpeedRatings": exif_data.get("ISOSpeedRatings"),
-                    "exposureTime": format_ifd_rational_value(exif_data.get("ExposureTime")),
+                    "focalLength": ensure_numeric_type(format_ifd_rational_value(exif_data.get("FocalLength")), 'float'),
+                    "apertureValue": ensure_numeric_type(format_ifd_rational_value(exif_data.get("FNumber")), 'float'),
+                    "isoSpeedRatings": ensure_numeric_type(exif_data.get("ISOSpeedRatings"), 'int'),
+                    "exposureTime": ensure_numeric_type(format_ifd_rational_value(exif_data.get("ExposureTime")), 'float'),
                     "creator": exif_data.get("ProcessedCreator", None),
                     "copyright": exif_data.get("ProcessedCopyright", None),
                 }
