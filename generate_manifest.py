@@ -16,6 +16,17 @@ import exifread
 PHOTO_ROOT_DIR = Path("/mnt/Web")  # Changed to /mnt/Web
 # The name of the output JSON file.
 OUTPUT_JSON_FILE = Path("/mnt/Web/image_manifest.json")  # Changed output path
+# Tags to exclude from the manifest (case-insensitive)
+# These are typically technical tags added by photo editing software that aren't useful for users
+EXCLUDED_TAGS = {
+    "darktable",  # Darktable editor tag
+    "exported",   # Export status tag
+    "format",     # Format-related tags
+    "dng",        # RAW format tags
+    "raw",        # RAW format indicator
+    "nef",        # Nikon RAW format tag
+    "g500",       # Canon printer tag
+}
 # --- End Configuration ---
 
 def clean_exif_string(value):
@@ -431,6 +442,23 @@ def ensure_numeric_type(value, target_type='float'):
     except (ValueError, TypeError):
         return None
 
+def filter_tags(tags, excluded_tags=None):
+    """Filters out excluded tags (case-insensitive)."""
+    if not tags or not isinstance(tags, list):
+        return tags
+    
+    if excluded_tags is None:
+        excluded_tags = EXCLUDED_TAGS
+    
+    # Convert excluded tags to lowercase for case-insensitive comparison
+    excluded_lower = {tag.lower() for tag in excluded_tags}
+    
+    # Filter out excluded tags
+    filtered = [tag for tag in tags if tag.lower() not in excluded_lower]
+    
+    # Return None if the list is empty after filtering
+    return filtered if filtered else None
+
 def main(args):
     if args.debug_image:
         print_all_metadata_for_image(args.debug_image)
@@ -473,7 +501,10 @@ def main(args):
                 tags = exif_data.get("ProcessedTags", [])
                 if not isinstance(tags, list):
                     tags = []
-
+                
+                # Filter out excluded tags
+                tags = filter_tags(tags)
+                
                 lens_model_processed = clean_exif_string(exif_data.get("LensModel", None))
                 camera_model_processed = clean_exif_string(exif_data.get("Model", None))
 
@@ -504,7 +535,7 @@ def main(args):
                     "slug": slug,
                     "width": width, "height": height, "dateTaken": date_taken_iso,
                     "title": title, "description": description,
-                    "tags": tags if tags else None,
+                    "tags": tags,
                     "cameraModel": camera_model_processed,
                     "lensModel": lens_model_processed,
                     "flash": flash_fired_boolean,

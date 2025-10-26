@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
-from generate_manifest import get_exif_data, format_ifd_rational_value, parse_exif_date, clean_exif_string
+from generate_manifest import get_exif_data, format_ifd_rational_value, parse_exif_date, clean_exif_string, ensure_numeric_type, filter_tags
 from PIL import Image
 import json
 
@@ -44,6 +44,9 @@ def test_avif_manifest_generation():
         if not isinstance(tags, list):
             tags = []
         
+        # Filter out excluded tags
+        tags = filter_tags(tags)
+        
         lens_model_processed = clean_exif_string(exif_data.get("LensModel", None))
         camera_model_processed = clean_exif_string(exif_data.get("Model", None))
         
@@ -70,14 +73,14 @@ def test_avif_manifest_generation():
             "width": width, "height": height,
             "dateTaken": date_taken_iso,
             "title": title, "description": description,
-            "tags": tags if tags else None,
+            "tags": tags,
             "cameraModel": camera_model_processed,
             "lensModel": lens_model_processed,
             "flash": flash_fired_boolean,
-            "focalLength": format_ifd_rational_value(exif_data.get("FocalLength")),
-            "apertureValue": format_ifd_rational_value(exif_data.get("FNumber")),
-            "isoSpeedRatings": exif_data.get("ISOSpeedRatings"),
-            "exposureTime": format_ifd_rational_value(exif_data.get("ExposureTime")),
+            "focalLength": ensure_numeric_type(format_ifd_rational_value(exif_data.get("FocalLength")), 'float'),
+            "apertureValue": ensure_numeric_type(format_ifd_rational_value(exif_data.get("FNumber")), 'float'),
+            "isoSpeedRatings": ensure_numeric_type(exif_data.get("ISOSpeedRatings"), 'int'),
+            "exposureTime": ensure_numeric_type(format_ifd_rational_value(exif_data.get("ExposureTime")), 'float'),
             "creator": exif_data.get("ProcessedCreator", None),
             "copyright": exif_data.get("ProcessedCopyright", None),
         }
