@@ -268,6 +268,12 @@ def get_exif_data(image_path):
                                 if xmp_rights:
                                     xmp_data_dict["dc:rights"] = xmp_rights
 
+                            # Notes (Darktable-specific field)
+                            if "xmp:notes" not in xmp_data_dict:
+                                xmp_notes = desc_item.get("notes")
+                                if xmp_notes and isinstance(xmp_notes, str):
+                                    xmp_data_dict["xmp:notes"] = xmp_notes.strip()
+
                             # If we found all desired XMP fields in one description block, we can often break
                             # However, sometimes fields are split, so we iterate all for safety unless performance dictates otherwise.
         except AttributeError:
@@ -315,6 +321,10 @@ def get_exif_data(image_path):
             final_data["ProcessedCopyright"] = clean_exif_string(xmp_data_dict["dc:rights"])
         elif "Copyright" in exif_data:
             final_data["ProcessedCopyright"] = clean_exif_string(exif_data["Copyright"])
+
+        # Notes: XMP xmp:notes (Darktable-specific field)
+        if "xmp:notes" in xmp_data_dict:
+            final_data["ProcessedNotes"] = clean_exif_string(xmp_data_dict["xmp:notes"])
 
         return final_data
     except Exception:
@@ -545,6 +555,7 @@ def main(args):
                     "exposureTime": ensure_numeric_type(format_ifd_rational_value(exif_data.get("ExposureTime")), 'float'),
                     "creator": exif_data.get("ProcessedCreator", None),
                     "copyright": exif_data.get("ProcessedCopyright", None),
+                    "notes": exif_data.get("ProcessedNotes", None),
                 }
                 all_images_data.append(image_data)
                 processed_count += 1

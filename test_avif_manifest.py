@@ -83,6 +83,7 @@ def test_avif_manifest_generation():
             "exposureTime": ensure_numeric_type(format_ifd_rational_value(exif_data.get("ExposureTime")), 'float'),
             "creator": exif_data.get("ProcessedCreator", None),
             "copyright": exif_data.get("ProcessedCopyright", None),
+            "notes": exif_data.get("ProcessedNotes", None),
         }
         
         print(f"\nGenerated manifest entry:")
