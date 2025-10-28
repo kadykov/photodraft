@@ -543,6 +543,8 @@ def main(args):
             image_path = Path(root) / filename
             try:
                 relative_path = image_path.relative_to(PHOTO_ROOT_DIR)
+                print(f"Processing: {relative_path}")
+                
                 path_parts = relative_path.parts
                 year, month, day = None, None, None
                 if len(path_parts) >= 4:

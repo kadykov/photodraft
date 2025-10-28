@@ -24,11 +24,15 @@
     "lensModel": "NIKKOR Z 20mm f/1.8 S",
     "flash": false,
     "focalLength": 20.0,
+    "focalLength35mmEquiv": 20,
+    "focalLengthCategory": "ultra-wide",
+    "cropFactor": 1.0,
     "apertureValue": 1.8,
     "isoSpeedRatings": 5000,
     "exposureTime": 0.00625,
     "creator": "Aleksandr Kadykov",
-    "copyright": "Creative Commons Attribution (CC BY)"
+    "copyright": "Creative Commons Attribution (CC BY)",
+    "notes": null
   },
   {
     "relativePath": "2025/05/17/DSC_5349.jpg",
@@ -52,11 +56,15 @@
     "lensModel": "NIKKOR Z 20mm f/1.8 S",
     "flash": false,
     "focalLength": 20.0,
+    "focalLength35mmEquiv": 20,
+    "focalLengthCategory": "ultra-wide",
+    "cropFactor": 1.0,
     "apertureValue": 1.8,
     "isoSpeedRatings": 22800,
     "exposureTime": 0.00625,
     "creator": "Aleksandr Kadykov",
-    "copyright": "Creative Commons Attribution (CC BY)"
+    "copyright": "Creative Commons Attribution (CC BY)",
+    "notes": null
   },
   {
     "relativePath": "2025/05/17/DSC_5322.jpg",
@@ -80,11 +88,15 @@
     "lensModel": "NIKKOR Z 20mm f/1.8 S",
     "flash": false,
     "focalLength": 20.0,
+    "focalLength35mmEquiv": 20,
+    "focalLengthCategory": "ultra-wide",
+    "cropFactor": 1.0,
     "apertureValue": 1.8,
     "isoSpeedRatings": 5600,
     "exposureTime": 0.005,
     "creator": "Aleksandr Kadykov",
-    "copyright": "Creative Commons Attribution (CC BY)"
+    "copyright": "Creative Commons Attribution (CC BY)",
+    "notes": null
   },
   {
     "relativePath": "2025/05/17/GR009244.jpg",
@@ -109,11 +121,15 @@
     "lensModel": null,
     "flash": false,
     "focalLength": 13.8,
+    "focalLength35mmEquiv": 21,
+    "focalLengthCategory": "ultra-wide",
+    "cropFactor": 1.52,
     "apertureValue": 2.8,
     "isoSpeedRatings": 100,
     "exposureTime": 0.000625,
     "creator": "Aleksandr Kadykov",
-    "copyright": "Creative Commons Attribution (CC BY)"
+    "copyright": "Creative Commons Attribution (CC BY)",
+    "notes": null
   },
   {
     "relativePath": "2025/05/17/GR009243.jpg",
@@ -138,11 +154,47 @@
     "lensModel": null,
     "flash": true,
     "focalLength": 13.8,
+    "focalLength35mmEquiv": 21,
+    "focalLengthCategory": "ultra-wide",
+    "cropFactor": 1.52,
     "apertureValue": 2.8,
     "isoSpeedRatings": 100,
     "exposureTime": 0.000625,
     "creator": "Aleksandr Kadykov",
-    "copyright": "Creative Commons Attribution (CC BY)"
+    "copyright": "Creative Commons Attribution (CC BY)",
+    "notes": null
+  },
+  {
+    "relativePath": "2025/05/17/GR002092.jpg",
+    "filename": "GR002092.jpg",
+    "year": 2025,
+    "month": 5,
+    "day": 17,
+    "slug": "2025-05-17-GR002092",
+    "width": 5878,
+    "height": 3947,
+    "dateTaken": "2023-06-04T12:33:42",
+    "title": "The Dragon arrives on the Grande Place for the combat",
+    "description": "",
+    "tags": [
+      "belgium",
+      "doudou",
+      "event",
+      "mons"
+    ],
+    "cameraModel": "RICOH GR III",
+    "lensModel": null,
+    "flash": true,
+    "focalLength": 18.3,
+    "focalLength35mmEquiv": 28,
+    "focalLengthCategory": "wide",
+    "cropFactor": 1.53,
+    "apertureValue": 4.5,
+    "isoSpeedRatings": 100,
+    "exposureTime": 0.001,
+    "creator": "Aleksandr Kadykov",
+    "copyright": "Creative Commons Attribution (CC BY)",
+    "notes": "This is the notes example"
   },
   {
     "relativePath": "2025/05/17/GR002083.avif",
@@ -155,7 +207,7 @@
     "height": 3825,
     "dateTaken": "2023-06-04T12:32:58",
     "title": "Saint George arrives on the Grande Place for the combat",
-    "description": "",
+    "description": "The Saint George rides on the horse",
     "tags": [
       "belgium",
       "doudou",
@@ -166,10 +218,14 @@
     "lensModel": null,
     "flash": true,
     "focalLength": 18.3,
+    "focalLength35mmEquiv": 28,
+    "focalLengthCategory": "wide",
+    "cropFactor": 1.53,
     "apertureValue": 4.0,
     "isoSpeedRatings": 100,
     "exposureTime": 0.001,
     "creator": "Aleksandr Kadykov",
-    "copyright": "Creative Commons Attribution (CC BY)"
+    "copyright": "Creative Commons Attribution (CC BY)",
+    "notes": "This is the notes example"
   }
 ]
