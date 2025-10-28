@@ -79,6 +79,19 @@
         "description": "Focal length of the lens in millimeters (e.g., 50.0 for 50mm). Null if not available.",
         "type": ["number", "null"]
       },
+      "focalLength35mmEquiv": {
+        "description": "Focal length in 35mm film equivalent (e.g., 28 for 28mm equivalent). Null if not available.",
+        "type": ["integer", "null"]
+      },
+      "focalLengthCategory": {
+        "description": "Classification of focal length: ultra-wide (<24mm), wide (24-34mm), normal (35-69mm), short-telephoto (70-134mm), telephoto (135-299mm), super-telephoto (>=300mm). Based on 35mm equivalent. Null if not available.",
+        "type": ["string", "null"],
+        "enum": ["ultra-wide", "wide", "normal", "short-telephoto", "telephoto", "super-telephoto", null]
+      },
+      "cropFactor": {
+        "description": "Sensor crop factor relative to full-frame 35mm (e.g., 1.0 for full-frame, 1.5 for APS-C, 2.0 for Micro Four Thirds). Calculated from focal length and 35mm equivalent. Null if not available.",
+        "type": ["number", "null"]
+      },
       "apertureValue": {
         "description": "Aperture F-number (e.g., 2.8 for f/2.8). Null if not available.",
         "type": ["number", "null"]

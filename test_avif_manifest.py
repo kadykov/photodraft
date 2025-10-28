@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
-from generate_manifest import get_exif_data, format_ifd_rational_value, parse_exif_date, clean_exif_string, ensure_numeric_type, filter_tags
+from generate_manifest import get_exif_data, format_ifd_rational_value, parse_exif_date, clean_exif_string, ensure_numeric_type, filter_tags, classify_focal_length, calculate_crop_factor
 from PIL import Image
 import json
 
@@ -64,7 +64,13 @@ def test_avif_manifest_generation():
         # Generate slug from relative_path
         relative_path = image_path.relative_to(Path("sample-data"))
         slug = str(relative_path.with_suffix('')).replace('/', '-')
-        
+
+        # Calculate crop factor and focal length classification
+        focal_length = exif_data.get("FocalLength")
+        focal_length_35mm = exif_data.get("FocalLengthIn35mmFilm")
+        focal_length_category = classify_focal_length(focal_length_35mm)
+        crop_factor = calculate_crop_factor(focal_length, focal_length_35mm)
+
         image_data = {
             "relativePath": str(relative_path.as_posix()),
             "filename": image_path.name,
@@ -77,7 +83,10 @@ def test_avif_manifest_generation():
             "cameraModel": camera_model_processed,
             "lensModel": lens_model_processed,
             "flash": flash_fired_boolean,
-            "focalLength": ensure_numeric_type(format_ifd_rational_value(exif_data.get("FocalLength")), 'float'),
+            "focalLength": ensure_numeric_type(format_ifd_rational_value(focal_length), 'float'),
+            "focalLength35mmEquiv": ensure_numeric_type(focal_length_35mm, 'int'),
+            "focalLengthCategory": focal_length_category,
+            "cropFactor": crop_factor,
             "apertureValue": ensure_numeric_type(format_ifd_rational_value(exif_data.get("FNumber")), 'float'),
             "isoSpeedRatings": ensure_numeric_type(exif_data.get("ISOSpeedRatings"), 'int'),
             "exposureTime": ensure_numeric_type(format_ifd_rational_value(exif_data.get("ExposureTime")), 'float'),

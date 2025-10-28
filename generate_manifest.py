@@ -469,6 +469,62 @@ def filter_tags(tags, excluded_tags=None):
     # Return None if the list is empty after filtering
     return filtered if filtered else None
 
+def classify_focal_length(focal_length_35mm):
+    """
+    Classifies focal length into categories based on 35mm equivalent.
+    
+    Args:
+        focal_length_35mm: Focal length in 35mm equivalent (mm)
+    
+    Returns:
+        String category or None if focal length is not available
+    """
+    if focal_length_35mm is None:
+        return None
+    
+    try:
+        fl = float(focal_length_35mm)
+    except (ValueError, TypeError):
+        return None
+    
+    # Classification based on 35mm equivalent focal length
+    if fl < 24:
+        return "ultra-wide"
+    elif fl < 35:
+        return "wide"
+    elif fl < 70:
+        return "normal"
+    elif fl < 135:
+        return "short-telephoto"
+    elif fl < 300:
+        return "telephoto"
+    else:
+        return "super-telephoto"
+
+def calculate_crop_factor(focal_length, focal_length_35mm):
+    """
+    Calculates the crop factor from actual and 35mm equivalent focal lengths.
+    
+    Args:
+        focal_length: Actual focal length (mm)
+        focal_length_35mm: 35mm equivalent focal length (mm)
+    
+    Returns:
+        Crop factor as float, or None if calculation not possible
+    """
+    if focal_length is None or focal_length_35mm is None:
+        return None
+    
+    try:
+        fl = float(focal_length)
+        fl_35mm = float(focal_length_35mm)
+        if fl > 0:
+            return round(fl_35mm / fl, 2)
+    except (ValueError, TypeError, ZeroDivisionError):
+        pass
+    
+    return None
+
 def main(args):
     if args.debug_image:
         print_all_metadata_for_image(args.debug_image)
@@ -539,6 +595,14 @@ def main(args):
                 # Generate slug from relative_path
                 slug = str(relative_path.with_suffix('')).replace(os.sep, '-')
 
+                # Calculate crop factor and focal length classification
+                focal_length_35mm = exif_data.get("FocalLengthIn35mmFilm")
+                focal_length_category = classify_focal_length(focal_length_35mm)
+                crop_factor = calculate_crop_factor(
+                    exif_data.get("FocalLength"),
+                    focal_length_35mm
+                )
+
                 image_data = {
                     "relativePath": str(relative_path.as_posix()),
                     "filename": filename, "year": year, "month": month, "day": day,
@@ -550,6 +614,9 @@ def main(args):
                     "lensModel": lens_model_processed,
                     "flash": flash_fired_boolean,
                     "focalLength": ensure_numeric_type(format_ifd_rational_value(exif_data.get("FocalLength")), 'float'),
+                    "focalLength35mmEquiv": ensure_numeric_type(focal_length_35mm, 'int'),
+                    "focalLengthCategory": focal_length_category,
+                    "cropFactor": crop_factor,
                     "apertureValue": ensure_numeric_type(format_ifd_rational_value(exif_data.get("FNumber")), 'float'),
                     "isoSpeedRatings": ensure_numeric_type(exif_data.get("ISOSpeedRatings"), 'int'),
                     "exposureTime": ensure_numeric_type(format_ifd_rational_value(exif_data.get("ExposureTime")), 'float'),
