@@ -12,10 +12,15 @@ from PIL.TiffImagePlugin import IFDRational
 import exifread
 
 # --- Configuration ---
+# The root directory of the web server (where manifests and collection folders are located)
+WEB_ROOT = Path("/mnt/Web")
 # The root directory where your YYYY/MM/DD structured photos are.
 PHOTO_ROOT_DIR = Path("/mnt/Web/photos")
 # The name of the output JSON file.
 OUTPUT_JSON_FILE = Path("/mnt/Web/photo_manifest.json")
+
+# Calculate the collection path relative to web root (e.g., "photos" or "photography/archive")
+COLLECTION_PATH = PHOTO_ROOT_DIR.relative_to(WEB_ROOT)
 # Tags to exclude from the manifest (case-insensitive)
 # These are typically technical tags added by photo editing software that aren't useful for users
 EXCLUDED_TAGS = {
@@ -543,7 +548,9 @@ def main(args):
             image_path = Path(root) / filename
             try:
                 relative_path = image_path.relative_to(PHOTO_ROOT_DIR)
-                print(f"Processing: {relative_path}")
+                # Prepend collection path to make path relative to web root
+                relative_path_from_web_root = COLLECTION_PATH / relative_path
+                print(f"Processing: {relative_path_from_web_root}")
                 
                 path_parts = relative_path.parts
                 year, month, day = None, None, None
@@ -594,8 +601,8 @@ def main(args):
                             except ValueError:
                                 flash_fired_boolean = None
 
-                # Generate slug from relative_path
-                slug = str(relative_path.with_suffix('')).replace(os.sep, '-')
+                # Generate slug from relative_path_from_web_root
+                slug = str(relative_path_from_web_root.with_suffix('')).replace(os.sep, '-')
 
                 # Calculate crop factor and focal length classification
                 focal_length_35mm = exif_data.get("FocalLengthIn35mmFilm")
@@ -606,7 +613,7 @@ def main(args):
                 )
 
                 image_data = {
-                    "relativePath": str(relative_path.as_posix()),
+                    "relativePath": str(relative_path_from_web_root.as_posix()),
                     "filename": filename, "year": year, "month": month, "day": day,
                     "slug": slug,
                     "width": width, "height": height, "dateTaken": date_taken_iso,

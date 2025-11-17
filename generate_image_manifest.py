@@ -6,10 +6,15 @@ from pathlib import Path
 from PIL import Image
 
 # --- Configuration ---
+# The root directory of the web server (where manifests and collection folders are located)
+WEB_ROOT = Path("/mnt/Web")
 # The root directory where your general images (screenshots, diagrams, etc.) are stored.
 IMAGE_ROOT_DIR = Path("/mnt/Web/images")
 # The name of the output JSON file.
 OUTPUT_JSON_FILE = Path("/mnt/Web/image_manifest.json")
+
+# Calculate the collection path relative to web root (e.g., "images" or "assets/images")
+COLLECTION_PATH = IMAGE_ROOT_DIR.relative_to(WEB_ROOT)
 # --- End Configuration ---
 
 
@@ -59,7 +64,9 @@ def main():
             
             try:
                 relative_path = image_path.relative_to(IMAGE_ROOT_DIR)
-                print(f"Processing: {relative_path}")
+                # Prepend collection path to make path relative to web root
+                relative_path_from_web_root = COLLECTION_PATH / relative_path
+                print(f"Processing: {relative_path_from_web_root}")
                 
                 # Get image dimensions
                 # Note: SVG files might not work with PIL, handle that case
@@ -76,11 +83,11 @@ def main():
                 # Get file metadata
                 file_info = get_file_info(image_path)
                 
-                # Generate slug from relative_path
-                slug = str(relative_path.with_suffix('')).replace(os.sep, '-')
+                # Generate slug from relative_path_from_web_root
+                slug = str(relative_path_from_web_root.with_suffix('')).replace(os.sep, '-')
                 
                 image_data = {
-                    "relativePath": str(relative_path.as_posix()),
+                    "relativePath": str(relative_path_from_web_root.as_posix()),
                     "filename": filename,
                     "width": width,
                     "height": height,

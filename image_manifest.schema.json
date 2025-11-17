@@ -7,7 +7,7 @@
     "type": "object",
     "properties": {
       "relativePath": {
-        "description": "Path to the image relative to the images root directory, using POSIX separators.",
+        "description": "Path to the image relative to the web server root directory (/mnt/Web), using POSIX separators. Includes 'images/' prefix.",
         "type": "string"
       },
       "filename": {

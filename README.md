@@ -54,14 +54,47 @@ This project uses `uv` for managing the Python environment and dependencies.
 
 Open `generate_manifest.py` and modify these variables at the top if needed:
 
+-   `WEB_ROOT`: Path to the web server root directory. Defaults to `"/mnt/Web"`.
 -   `PHOTO_ROOT_DIR`: Path to the root directory of your photos. Defaults to `"/mnt/Web/photos"`.
 -   `OUTPUT_JSON_FILE`: Path where the `photo_manifest.json` will be saved. Defaults to `"/mnt/Web/photo_manifest.json"`.
 -   `EXCLUDED_TAGS`: Set of tags to exclude from metadata (e.g., technical tags like "darktable", "exported").
 
+The script automatically calculates `COLLECTION_PATH` as the relative path from `WEB_ROOT` to `PHOTO_ROOT_DIR`, so changing the folder structure is flexible.
+
 ### Image Manifest (`generate_image_manifest.py`)
 
+-   `WEB_ROOT`: Path to the web server root directory. Defaults to `"/mnt/Web"`.
 -   `IMAGE_ROOT_DIR`: Path to general images. Defaults to `"/mnt/Web/images"`.
 -   `OUTPUT_JSON_FILE`: Path where the `image_manifest.json` will be saved. Defaults to `"/mnt/Web/image_manifest.json"`.
+
+The script automatically calculates `COLLECTION_PATH` as the relative path from `WEB_ROOT` to `IMAGE_ROOT_DIR`.
+
+### Flexible Configuration Examples
+
+The scripts automatically adapt to your folder structure by calculating the collection path relative to `WEB_ROOT`:
+
+**Example 1: Nested collections**
+```python
+WEB_ROOT = Path("/mnt/Web")
+PHOTO_ROOT_DIR = Path("/mnt/Web/photography/archive")
+# → Paths in manifest: "photography/archive/2025/05/17/photo.avif"
+```
+
+**Example 2: Custom image location**
+```python
+WEB_ROOT = Path("/var/www/html")
+IMAGE_ROOT_DIR = Path("/var/www/html/assets/img")
+# → Paths in manifest: "assets/img/blog/post/screenshot.webp"
+```
+
+**Example 3: Flat structure**
+```python
+WEB_ROOT = Path("/mnt/Web")
+PHOTO_ROOT_DIR = Path("/mnt/Web/pics")
+# → Paths in manifest: "pics/2025/05/17/photo.avif"
+```
+
+The key is that `PHOTO_ROOT_DIR` and `IMAGE_ROOT_DIR` must be subdirectories of `WEB_ROOT`, and the manifest files should be placed at `WEB_ROOT` level.
 
 ## Usage
 
@@ -122,7 +155,7 @@ python generate_manifest.py --debug-image sample-data/2025/05/17/DSC_5322.jpg
 
 A JSON array where each object represents a curated photograph. The structure is defined by `photo_manifest.schema.json`. Key fields include:
 
--   `relativePath`: Path relative to `/mnt/Web/photos/`
+-   `relativePath`: Path relative to `/mnt/Web/` (includes `photos/` prefix, e.g., `photos/2025/05/17/photo.avif`)
 -   `filename`: Image filename
 -   `year`, `month`, `day`: Date from folder structure
 -   `width`, `height`: Image dimensions
@@ -135,16 +168,16 @@ A JSON array where each object represents a curated photograph. The structure is
 -   `cropFactor`: Calculated sensor crop factor
 -   `apertureValue`, `isoSpeedRatings`, `exposureTime`: Camera settings
 -   `creator`, `copyright`, `notes`: Author and metadata
--   `slug`: URL-friendly identifier
+-   `slug`: URL-friendly identifier (e.g., `photos-2025-05-17-DSC_1234`)
 
 ### Image Manifest (`image_manifest.json`)
 
 A simpler JSON array for general images. The structure is defined by `image_manifest.schema.json`. Fields include:
 
--   `relativePath`: Path relative to `/mnt/Web/images/`
+-   `relativePath`: Path relative to `/mnt/Web/` (includes `images/` prefix, e.g., `images/blog/post/screenshot.webp`)
 -   `filename`: Image filename
 -   `width`, `height`: Image dimensions
--   `slug`: URL-friendly identifier
+-   `slug`: URL-friendly identifier (e.g., `images-blog-post-screenshot`)
 -   `fileSize`: File size in bytes
 -   `lastModified`: ISO 8601 timestamp
 
