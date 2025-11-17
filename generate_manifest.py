@@ -13,9 +13,9 @@ import exifread
 
 # --- Configuration ---
 # The root directory where your YYYY/MM/DD structured photos are.
-PHOTO_ROOT_DIR = Path("/mnt/Web")  # Changed to /mnt/Web
+PHOTO_ROOT_DIR = Path("/mnt/Web/photos")
 # The name of the output JSON file.
-OUTPUT_JSON_FILE = Path("/mnt/Web/image_manifest.json")  # Changed output path
+OUTPUT_JSON_FILE = Path("/mnt/Web/photo_manifest.json")
 # Tags to exclude from the manifest (case-insensitive)
 # These are typically technical tags added by photo editing software that aren't useful for users
 EXCLUDED_TAGS = {

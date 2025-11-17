@@ -14,9 +14,18 @@ install:
 activate:
     @echo "To activate the virtual environment, run: source .venv/bin/activate"
 
-# Generate the image manifest
-generate:
+# Generate the photo manifest (Darktable exports with rich metadata)
+generate-photos:
     uv run -- python generate_manifest.py
+
+# Generate the image manifest (screenshots, diagrams with basic metadata)
+generate-images:
+    uv run -- python generate_image_manifest.py
+
+# Generate both photo and image manifests
+generate:
+    just generate-photos
+    just generate-images
 
 # Lint with Ruff
 lint:
@@ -45,9 +54,10 @@ qa:
     just lint-fix
     just typecheck
 
-# Copy the JSON schema to the output directory
+# Copy the JSON schemas to the output directory
 publish-schema:
-    @echo "Copying image_manifest.schema.json to /mnt/Web/..."
+    @echo "Copying schemas to /mnt/Web/..."
+    cp photo_manifest.schema.json /mnt/Web/photo_manifest.schema.json
     cp image_manifest.schema.json /mnt/Web/image_manifest.schema.json
 
 # Generate manifest and publish schema

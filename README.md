@@ -1,5 +1,35 @@
 # photodraft
 
+Photo and image manifest generator for building a personal website with static assets hosted on a web server.
+
+## Overview
+
+This project provides two separate manifest generators for different types of image collections:
+
+1. **Photo Manifest** (`generate_manifest.py`) - For curated photography exported from Darktable
+   - Rich EXIF/XMP metadata extraction
+   - Structured as `YYYY/MM/DD/filename` 
+   - Outputs: `/mnt/Web/photo_manifest.json`
+
+2. **Image Manifest** (`generate_image_manifest.py`) - For general images like screenshots, diagrams
+   - Basic metadata (dimensions, file size, timestamps)
+   - Flexible folder structure
+   - Outputs: `/mnt/Web/image_manifest.json`
+
+### Folder Structure on Web Server
+
+```
+/mnt/Web/
+  ├── photos/              # Darktable photography
+  │   └── YYYY/MM/DD/*.avif
+  ├── images/              # General images  
+  │   └── blog/post-name/*.webp
+  ├── photo_manifest.json
+  ├── image_manifest.json
+  ├── photo_manifest.schema.json
+  └── image_manifest.schema.json
+```
+
 ## Setup
 
 This project uses `uv` for managing the Python environment and dependencies.
@@ -20,23 +50,59 @@ This project uses `uv` for managing the Python environment and dependencies.
 
 ## Configuration
 
+### Photo Manifest (`generate_manifest.py`)
+
 Open `generate_manifest.py` and modify these variables at the top if needed:
 
--   `PHOTO_ROOT_DIR`: Path to the root directory of your photos. Defaults to `\"/mnt/Web\"`.
--   `OUTPUT_JSON_FILE`: Path where the `image_manifest.json` will be saved. Defaults to `\"/mnt/Web/image_manifest.json\"`.
+-   `PHOTO_ROOT_DIR`: Path to the root directory of your photos. Defaults to `"/mnt/Web/photos"`.
+-   `OUTPUT_JSON_FILE`: Path where the `photo_manifest.json` will be saved. Defaults to `"/mnt/Web/photo_manifest.json"`.
+-   `EXCLUDED_TAGS`: Set of tags to exclude from metadata (e.g., technical tags like "darktable", "exported").
+
+### Image Manifest (`generate_image_manifest.py`)
+
+-   `IMAGE_ROOT_DIR`: Path to general images. Defaults to `"/mnt/Web/images"`.
+-   `OUTPUT_JSON_FILE`: Path where the `image_manifest.json` will be saved. Defaults to `"/mnt/Web/image_manifest.json"`.
 
 ## Usage
 
-1.  **Ensure your photos are organized** in a structure like `PHOTO_ROOT_DIR/YYYY/MM/DD/your_image.jpg`.
-2.  **Activate your virtual environment** if you haven\'t already:
+### Using Just (recommended)
+
+The project includes a `justfile` with convenient commands:
+
+```bash
+# Generate both photo and image manifests
+just generate
+
+# Generate only photo manifest
+just generate-photos
+
+# Generate only image manifest
+just generate-images
+
+# Publish schemas to web server
+just publish-schema
+
+# Generate manifests and publish schemas
+just publish
+```
+
+### Manual Usage
+
+1.  **Ensure your images are organized** according to the folder structure above.
+
+2.  **Activate your virtual environment** if you haven't already:
     ```bash
     source .venv/bin/activate
     ```
-3.  **Run the script:**
+
+3.  **Run the scripts:**
     ```bash
+    # For photos
     python generate_manifest.py
+    
+    # For general images
+    python generate_image_manifest.py
     ```
-    This will generate/overwrite the `image_manifest.json` file at the configured `OUTPUT_JSON_FILE` path.
 
 ### Debugging Metadata
 
@@ -50,22 +116,37 @@ For example:
 python generate_manifest.py --debug-image sample-data/2025/05/17/DSC_5322.jpg
 ```
 
-## Output File: `image_manifest.json`
+## Output Files
 
-The script generates a JSON array where each object represents an image. The structure of these objects is defined by `image_manifest.schema.json`. Key fields include:
+### Photo Manifest (`photo_manifest.json`)
 
--   `relativePath`: Path to the image relative to `PHOTO_ROOT_DIR`.
--   `filename`: Image filename.
--   `year`, `month`, `day`: Date components from the folder structure.
--   `width`, `height`: Image dimensions.
--   `dateTaken`: ISO 8601 timestamp from EXIF.
--   `title`, `description`: From EXIF.
--   `tags`: List of strings from XMP `dc:subject` or EXIF `XPKeywords`.
--   `cameraModel`, `lensModel`: From EXIF.
--   `flash`: Boolean indicating if flash fired.
--   And other technical EXIF data like `focalLength`, `apertureValue`, etc.
+A JSON array where each object represents a curated photograph. The structure is defined by `photo_manifest.schema.json`. Key fields include:
 
-Refer to `image_manifest.schema.json` for the complete schema definition.
+-   `relativePath`: Path relative to `/mnt/Web/photos/`
+-   `filename`: Image filename
+-   `year`, `month`, `day`: Date from folder structure
+-   `width`, `height`: Image dimensions
+-   `dateTaken`: ISO 8601 timestamp from EXIF
+-   `title`, `description`: From EXIF or XMP
+-   `tags`: From XMP `dc:subject` or EXIF `XPKeywords` (filtered)
+-   `cameraModel`, `lensModel`: From EXIF
+-   `flash`: Boolean indicating if flash fired
+-   `focalLength`, `focalLength35mmEquiv`, `focalLengthCategory`: Lens data
+-   `cropFactor`: Calculated sensor crop factor
+-   `apertureValue`, `isoSpeedRatings`, `exposureTime`: Camera settings
+-   `creator`, `copyright`, `notes`: Author and metadata
+-   `slug`: URL-friendly identifier
+
+### Image Manifest (`image_manifest.json`)
+
+A simpler JSON array for general images. The structure is defined by `image_manifest.schema.json`. Fields include:
+
+-   `relativePath`: Path relative to `/mnt/Web/images/`
+-   `filename`: Image filename
+-   `width`, `height`: Image dimensions
+-   `slug`: URL-friendly identifier
+-   `fileSize`: File size in bytes
+-   `lastModified`: ISO 8601 timestamp
 
 ## Future Considerations / Improvements
 

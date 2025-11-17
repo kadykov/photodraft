@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Image Manifest",
+  "description": "Schema for the image_manifest.json file, describing a collection of images and their metadata.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "relativePath": {
+        "description": "Path to the image relative to the photo root directory, using POSIX separators.",
+        "type": "string",
+        "pattern": "^[0-9]{4}/[0-9]{2}/[0-9]{2}/[^/]+$"
+      },
+      "filename": {
+        "description": "The name of the image file.",
+        "type": "string"
+      },
+      "year": {
+        "description": "Year extracted from the folder structure or EXIF data.",
+        "type": ["integer", "null"],
+        "minimum": 1900,
+        "maximum": 2100
+      },
+      "month": {
+        "description": "Month extracted from the folder structure or EXIF data.",
+        "type": ["integer", "null"],
+        "minimum": 1,
+        "maximum": 12
+      },
+      "day": {
+        "description": "Day extracted from the folder structure or EXIF data.",
+        "type": ["integer", "null"],
+        "minimum": 1,
+        "maximum": 31
+      },
+      "width": {
+        "description": "Width of the image in pixels.",
+        "type": "integer",
+        "minimum": 1
+      },
+      "height": {
+        "description": "Height of the image in pixels.",
+        "type": "integer",
+        "minimum": 1
+      },
+      "dateTaken": {
+        "description": "Date and time the photo was taken, in ISO 8601 format. Null if not available.",
+        "type": ["string", "null"],
+        "format": "date-time"
+      },
+      "title": {
+        "description": "Title of the image, often from EXIF ImageDescription or ObjectName. Null if not available.",
+        "type": ["string", "null"]
+      },
+      "description": {
+        "description": "Description of the image, often from EXIF UserComment. Null if not available.",
+        "type": ["string", "null"]
+      },
+      "tags": {
+        "description": "A list of keywords/tags associated with the image, from XMP dc:subject or EXIF XPKeywords. Null if no tags.",
+        "type": ["array", "null"],
+        "items": {
+          "type": "string"
+        }
+      },
+      "cameraModel": {
+        "description": "Camera model used, from EXIF Model. Null if not available.",
+        "type": ["string", "null"]
+      },
+      "lensModel": {
+        "description": "Lens model used, from EXIF LensModel, cleaned of null characters. Null if not available.",
+        "type": ["string", "null"]
+      },
+      "flash": {
+        "description": "Indicates if the flash fired. True if fired, false if not, null if unknown.",
+        "type": ["boolean", "null"]
+      },
+      "focalLength": {
+        "description": "Focal length of the lens in millimeters (e.g., 50.0 for 50mm). Null if not available.",
+        "type": ["number", "null"]
+      },
+      "focalLength35mmEquiv": {
+        "description": "Focal length in 35mm film equivalent (e.g., 28 for 28mm equivalent). Null if not available.",
+        "type": ["integer", "null"]
+      },
+      "focalLengthCategory": {
+        "description": "Classification of focal length: ultra-wide (<24mm), wide (24-34mm), normal (35-69mm), short-telephoto (70-134mm), telephoto (135-299mm), super-telephoto (>=300mm). Based on 35mm equivalent. Null if not available.",
+        "type": ["string", "null"],
+        "enum": ["ultra-wide", "wide", "normal", "short-telephoto", "telephoto", "super-telephoto", null]
+      },
+      "cropFactor": {
+        "description": "Sensor crop factor relative to full-frame 35mm (e.g., 1.0 for full-frame, 1.5 for APS-C, 2.0 for Micro Four Thirds). Calculated from focal length and 35mm equivalent. Null if not available.",
+        "type": ["number", "null"]
+      },
+      "apertureValue": {
+        "description": "Aperture F-number (e.g., 2.8 for f/2.8). Null if not available.",
+        "type": ["number", "null"]
+      },
+      "isoSpeedRatings": {
+        "description": "ISO speed rating. Null if not available.",
+        "type": ["integer", "array", "null"],
+        "items": { 
+            "type": "integer"
+        }
+      },
+      "exposureTime": {
+        "description": "Exposure time in seconds (e.g., 0.004 for 1/250s). Null if not available.",
+        "type": ["number", "null"]
+      },
+      "creator": {
+        "description": "Name of the photographer or creator, from EXIF Artist or XMP dc:creator. Null if not available.",
+        "type": ["string", "null"]
+      },
+      "copyright": {
+        "description": "Copyright information, from EXIF Copyright or XMP dc:rights. Null if not available.",
+        "type": ["string", "null"]
+      },
+      "notes": {
+        "description": "Notes or additional comments about the image, from XMP xmp:notes (Darktable-specific). Null if not available.",
+        "type": ["string", "null"]
+      },
+      "slug": {
+        "description": "A URL-friendly slug derived from the relativePath, e.g., '2025-03-04-DSC_1234'.",
+        "type": "string"
+      }
+    },
+    "required": [
+      "relativePath",
+      "filename",
+      "width",
+      "height",
+      "slug"
+    ]
+  }
+}
