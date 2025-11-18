@@ -30,6 +30,7 @@ EXCLUDED_TAGS = {
     "dng",        # RAW format tags
     "raw",        # RAW format indicator
     "nef",        # Nikon RAW format tag
+    "rw2",        # Panasonic RAW format tag
     "g500",       # Canon printer tag
 }
 # --- End Configuration ---
